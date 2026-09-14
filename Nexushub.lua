@@ -15,11 +15,16 @@ local C={
 	panel=Color3.fromRGB(31,27,48),hover=Color3.fromRGB(48,39,68),
 	white=Color3.fromRGB(245,245,250),gray=Color3.fromRGB(165,160,180),
 	purple=Color3.fromRGB(150,65,255),blue=Color3.fromRGB(0,110,255),
-	red=Color3.fromRGB(255,0,0),green=Color3.fromRGB(60,220,120)
+	red=Color3.fromRGB(255,0,0),green=Color3.fromRGB(60,220,120),
+	yellow=Color3.fromRGB(255,220,40)
 }
 
 local tw=function(o,p,t)
-	local x=T:Create(o,t or TweenInfo.new(.2,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),p)
+	local x=T:Create(
+		o,
+		t or TweenInfo.new(.2,Enum.EasingStyle.Quart,Enum.EasingDirection.Out),
+		p
+	)
 	x:Play()
 	return x
 end
@@ -31,8 +36,8 @@ G.ResetOnSpawn=false
 G.IgnoreGuiInset=true
 
 local F=Instance.new("Frame",G)
-F.Size=UDim2.fromOffset(285,220)
-F.Position=UDim2.new(.5,-142,.5,-110)
+F.Size=UDim2.fromOffset(285,265)
+F.Position=UDim2.new(.5,-142,.5,-132)
 F.BackgroundColor3=C.bg
 F.BorderSizePixel=0
 F.Active=true
@@ -49,8 +54,7 @@ Top.Size=UDim2.new(1,0,0,52)
 Top.BackgroundColor3=C.top
 Top.BorderSizePixel=0
 
-local tc=Instance.new("UICorner",Top)
-tc.CornerRadius=UDim.new(0,13)
+Instance.new("UICorner",Top).CornerRadius=UDim.new(0,13)
 
 local Title=Instance.new("TextLabel",Top)
 Title.Size=UDim2.new(1,-115,0,20)
@@ -103,6 +107,7 @@ local function WBtn(txt,x)
 	b.TextSize=18
 	b.Font=Enum.Font.GothamBold
 	b.BorderSizePixel=0
+	b.AutoButtonColor=false
 
 	Instance.new("UICorner",b).CornerRadius=UDim.new(0,8)
 
@@ -120,14 +125,23 @@ end
 local Min=WBtn("—",-72)
 local Close=WBtn("×",-36)
 
-local Con=Instance.new("Frame",F)
+--// Scrollable Content
+local Con=Instance.new("ScrollingFrame",F)
 Con.Position=UDim2.fromOffset(10,60)
 Con.Size=UDim2.new(1,-20,1,-65)
 Con.BackgroundTransparency=1
+Con.BorderSizePixel=0
+Con.CanvasSize=UDim2.fromOffset(0,309)
+Con.ScrollBarThickness=4
+Con.ScrollBarImageColor3=C.purple
+Con.ScrollBarImageTransparency=.15
+Con.ScrollingDirection=Enum.ScrollingDirection.Y
+Con.Active=true
+Con.ClipsDescendants=true
 
 local function Btn(name,desc,y)
 	local b=Instance.new("TextButton",Con)
-	b.Size=UDim2.new(1,0,0,44)
+	b.Size=UDim2.new(1,-6,0,44)
 	b.Position=UDim2.fromOffset(0,y)
 	b.BackgroundColor3=C.panel
 	b.Text=""
@@ -181,6 +195,67 @@ end
 local FB,FS=Btn("Fly","Mobile joystick flight",0)
 local NB,NS=Btn("Night Vision","Improve dark visibility",51)
 local EB,ES=Btn("ESP","Players blue • Enemies red",102)
+local IB,IS=Btn("ESP Items","🔒 Premium Feature",153)
+local AB,AS=Btn("Anti AFK","Stay active",204)
+
+--// Join Discord Button
+local JoinDiscord=Instance.new("TextButton",Con)
+JoinDiscord.Size=UDim2.new(1,-6,0,44)
+JoinDiscord.Position=UDim2.fromOffset(0,255)
+JoinDiscord.BackgroundColor3=C.purple
+JoinDiscord.Text="Join discord link Here!"
+JoinDiscord.TextColor3=C.white
+JoinDiscord.TextSize=12
+JoinDiscord.Font=Enum.Font.GothamBold
+JoinDiscord.BorderSizePixel=0
+JoinDiscord.AutoButtonColor=false
+
+Instance.new("UICorner",JoinDiscord).CornerRadius=UDim.new(0,9)
+
+JoinDiscord.MouseEnter:Connect(function()
+	tw(JoinDiscord,{
+		BackgroundColor3=Color3.fromRGB(180,110,255)
+	})
+end)
+
+JoinDiscord.MouseLeave:Connect(function()
+	tw(JoinDiscord,{
+		BackgroundColor3=C.purple
+	})
+end)
+
+JoinDiscord.MouseButton1Click:Connect(function()
+	if setclipboard then
+		setclipboard("https://discord.gg/rgm7mbf6U")
+	elseif toclipboard then
+		toclipboard("https://discord.gg/rgm7mbf6U")
+	end
+end)
+
+--// Locked ESP Items
+IB.AutoButtonColor=false
+
+local Lock=Instance.new("TextLabel",IB)
+Lock.Size=UDim2.fromOffset(20,20)
+Lock.Position=UDim2.new(1,-30,.5,-10)
+Lock.BackgroundTransparency=1
+Lock.Text="🔒"
+Lock.TextSize=11
+Lock.TextColor3=C.gray
+
+IS.Text="PREMIUM"
+IS.TextSize=7
+IS.TextColor3=C.yellow
+IS.BackgroundColor3=Color3.fromRGB(55,45,25)
+
+IB.MouseButton1Click:Connect(function()
+	tw(IB,{BackgroundColor3=C.hover})
+	task.delay(.15,function()
+		if IB.Parent then
+			tw(IB,{BackgroundColor3=C.panel})
+		end
+	end)
+end)
 
 local function Stat(s,on)
 	s.Text=on and"ON"or"OFF"
@@ -190,6 +265,14 @@ local function Stat(s,on)
 		TextColor3=on and Color3.fromRGB(10,25,15) or C.gray
 	})
 end
+
+--// Anti AFK UI only
+local antiAFK=false
+
+AB.MouseButton1Click:Connect(function()
+	antiAFK=not antiAFK
+	Stat(AS,antiAFK)
+end)
 
 --// Drag
 local drag,start,pos=false,nil,nil
@@ -389,7 +472,6 @@ local function Add(m,col)
 	es[m]=h
 end
 
---// Cabinet detector
 local function IsCabinet(m)
 	local n=string.lower(m.Name)
 	return string.find(n,"cabinet",1,true)~=nil
@@ -398,13 +480,11 @@ end
 local function Check(m)
 	if not esp or not m:IsA("Model") then return end
 
-	-- Green Cabinet ESP
 	if IsCabinet(m) then
 		Add(m,C.green)
 		return
 	end
 
-	-- Player / Enemy ESP
 	if not m:FindFirstChildOfClass("Humanoid") then return end
 
 	local p=PlayerOf(m)
@@ -472,7 +552,7 @@ Min.MouseButton1Click:Connect(function()
 		Min.Text="+"
 	else
 		Con.Visible=true
-		tw(F,{Size=UDim2.fromOffset(285,220)})
+		tw(F,{Size=UDim2.fromOffset(285,265)})
 		Min.Text="—"
 	end
 end)
@@ -513,7 +593,7 @@ F.BackgroundTransparency=1
 tw(
 	F,
 	{
-		Size=UDim2.fromOffset(285,220),
+		Size=UDim2.fromOffset(285,265),
 		BackgroundTransparency=0
 	},
 	TweenInfo.new(.4,Enum.EasingStyle.Back,Enum.EasingDirection.Out)
