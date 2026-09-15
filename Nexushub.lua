@@ -1,3 +1,8 @@
+--// NEXUS HUB | HOUSE OF THE LOCUST
+--// Compact Full Version
+--// Includes: Fly, Night Vision, ESP, ESP Items Locked,
+--// Anti-AFK Ultimate (5 Methods), No Clip, Discord
+
 local P=game:GetService("Players")
 local R=game:GetService("RunService")
 local U=game:GetService("UserInputService")
