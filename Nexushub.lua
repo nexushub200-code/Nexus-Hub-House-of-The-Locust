@@ -1,7 +1,6 @@
 --// NEXUS HUB | HOUSE OF THE LOCUST
 --// Compact Full Version
---// Includes: Fly, Night Vision, ESP, ESP Items Locked,
---// Anti-AFK Ultimate (5 Methods), No Clip, Discord
+--// Safe Zone: -112.36 | 4.00 | 119.05
 
 local P=game:GetService("Players")
 local R=game:GetService("RunService")
@@ -10,10 +9,12 @@ local L=game:GetService("Lighting")
 local T=game:GetService("TweenService")
 local LP=P.LocalPlayer
 
-local fly,nv,esp,noclip,antiAFK=false,false,false,false,false
+local fly,nv,esp,noclip=false,false,false,false
 local bv,bg,fc,cc,nc
 local es={}
 local old={L.Brightness,L.ClockTime,L.FogEnd,L.GlobalShadows}
+
+local SAFE=Vector3.new(-112.36,4,119.05)
 
 local C={
 	bg=Color3.fromRGB(15,12,25),
@@ -36,14 +37,15 @@ local function tw(o,p,t)
 end
 
 --// GUI
-local G=Instance.new("ScreenGui",LP:WaitForChild("PlayerGui"))
+local G=Instance.new("ScreenGui")
 G.Name="NexusHub"
 G.ResetOnSpawn=false
 G.IgnoreGuiInset=true
+G.Parent=LP:WaitForChild("PlayerGui")
 
 local F=Instance.new("Frame",G)
-F.Size=UDim2.fromOffset(285,315)
-F.Position=UDim2.new(.5,-142,.5,-157)
+F.Size=UDim2.fromOffset(285,360)
+F.Position=UDim2.new(.5,-142,.5,-180)
 F.BackgroundColor3=C.bg
 F.BorderSizePixel=0
 F.Active=true
@@ -128,11 +130,11 @@ local Close=WBtn("×",-36)
 
 --// Content
 local Con=Instance.new("ScrollingFrame",F)
-Con.Position=UDim2.fromOffset(10,60)
-Con.Size=UDim2.new(1,-20,1,-65)
+Con.Position=UDim2.fromOffset(10,58)
+Con.Size=UDim2.new(1,-20,1,-63)
 Con.BackgroundTransparency=1
 Con.BorderSizePixel=0
-Con.CanvasSize=UDim2.fromOffset(0,360)
+Con.CanvasSize=UDim2.fromOffset(0,405)
 Con.ScrollBarThickness=4
 Con.ScrollBarImageColor3=C.purple
 Con.ScrollBarImageTransparency=.15
@@ -195,13 +197,43 @@ local FB,FS=Btn("Fly","Mobile joystick flight",0)
 local NB,NS=Btn("Night Vision","Improve dark visibility",51)
 local EB,ES=Btn("ESP","Players blue • Enemies red",102)
 local IB,IS=Btn("ESP Items","🔒 Premium Feature",153)
-local AB,AS=Btn("Anti AFK","Ultimate • 5 Methods",204)
+local AB,AS=Btn("Anti AFK","Game activity system",204)
 local NCB,NCS=Btn("No Clip","Walk through walls",255)
+
+--// Safe Zone
+local Safe=Instance.new("TextButton",Con)
+Safe.Size=UDim2.new(1,-6,0,44)
+Safe.Position=UDim2.fromOffset(0,306)
+Safe.BackgroundColor3=C.purple
+Safe.Text="Safe Zone"
+Safe.TextColor3=C.white
+Safe.TextSize=12
+Safe.Font=Enum.Font.GothamBold
+Safe.BorderSizePixel=0
+Safe.AutoButtonColor=false
+Instance.new("UICorner",Safe).CornerRadius=UDim.new(0,9)
+
+Safe.MouseEnter:Connect(function()
+	tw(Safe,{BackgroundColor3=Color3.fromRGB(180,110,255)})
+end)
+
+Safe.MouseLeave:Connect(function()
+	tw(Safe,{BackgroundColor3=C.purple})
+end)
+
+Safe.MouseButton1Click:Connect(function()
+	local c=LP.Character
+	local root=c and c:FindFirstChild("HumanoidRootPart")
+
+	if root then
+		root.CFrame=CFrame.new(SAFE)
+	end
+end)
 
 --// Discord Button
 local JoinDiscord=Instance.new("TextButton",Con)
 JoinDiscord.Size=UDim2.new(1,-6,0,44)
-JoinDiscord.Position=UDim2.fromOffset(0,306)
+JoinDiscord.Position=UDim2.fromOffset(0,357)
 JoinDiscord.BackgroundColor3=C.purple
 JoinDiscord.Text="Join discord link Here!"
 JoinDiscord.TextColor3=C.white
@@ -259,114 +291,17 @@ local function Stat(s,on)
 	})
 end
 
---// Anti AFK Ultimate
-local function SimulateKey()
-	local keys={
-		Enum.KeyCode.W,
-		Enum.KeyCode.A,
-		Enum.KeyCode.S,
-		Enum.KeyCode.D
-	}
-
-	local k=keys[math.random(1,#keys)]
-
-	pcall(function()
-		U:SendKeyEvent(true,k,false,game)
-		task.wait(.05)
-		U:SendKeyEvent(false,k,false,game)
-	end)
-end
-
-local function MoveCamera()
-	local cam=workspace.CurrentCamera
-	if not cam then return end
-
-	local oldCF=cam.CFrame
-	cam.CFrame=oldCF*CFrame.Angles(0,math.rad(.35),0)
-
-	task.wait(.08)
-
-	if cam then
-		cam.CFrame=oldCF
-	end
-end
-
-local function NudgePosition()
-	local c=LP.Character
-	local root=c and c:FindFirstChild("HumanoidRootPart")
-
-	if root then
-		local cf=root.CFrame
-		root.CFrame=cf*CFrame.new(.01,0,0)
-
-		task.wait(.04)
-
-		if root.Parent then
-			root.CFrame=cf
-		end
-	end
-end
-
-local function ResetIdleState()
-	local c=LP.Character
-	local h=c and c:FindFirstChildOfClass("Humanoid")
-
-	if h then
-		pcall(function()
-			h:SetStateEnabled(Enum.HumanoidStateType.Idle,false)
-			task.wait(.03)
-			h:SetStateEnabled(Enum.HumanoidStateType.Idle,true)
-		end)
-	end
-end
-
-local function CaptureFocus()
-	pcall(function()
-		local gui=LP.PlayerGui
-		local box=gui:FindFirstChildWhichIsA("TextBox",true)
-
-		if box then
-			box:CaptureFocus()
-			task.wait(.03)
-			box:ReleaseFocus()
-		end
-	end)
-end
-
-local function AntiAFKRun()
-	if not antiAFK then return end
-
-	SimulateKey()
-	task.wait(.25)
-
-	if not antiAFK then return end
-	MoveCamera()
-	task.wait(.25)
-
-	if not antiAFK then return end
-	NudgePosition()
-	task.wait(.25)
-
-	if not antiAFK then return end
-	ResetIdleState()
-	task.wait(.25)
-
-	if not antiAFK then return end
-	CaptureFocus()
-end
+--// Anti AFK
+local antiAFK=false
 
 AB.MouseButton1Click:Connect(function()
 	antiAFK=not antiAFK
 	Stat(AS,antiAFK)
-end)
 
-task.spawn(function()
-	while G.Parent do
-		task.wait(15)
-
-		if antiAFK then
-			pcall(AntiAFKRun)
-		end
+	local c=LP.Character
+	if c then
+		c:SetAttribute("NexusAFK",not antiAFK)
+		c:SetAttribute("NexusAFKStarted",antiAFK and os.clock() or 0)
 	end
 end)
 
@@ -386,9 +321,7 @@ local function StartNoClip()
 	noclip=true
 	Stat(NCS,true)
 
-	if nc then
-		nc:Disconnect()
-	end
+	if nc then nc:Disconnect() end
 
 	nc=R.Stepped:Connect(function()
 		if not noclip then return end
@@ -424,88 +357,16 @@ NCB.MouseButton1Click:Connect(function()
 	end
 end)
 
-LP.CharacterAdded:Connect(function()
-	if noclip then
-		task.wait(.5)
-
-		if nc then
-			nc:Disconnect()
-		end
-
-		nc=R.Stepped:Connect(function()
-			if not noclip then return end
-
-			local c=LP.Character
-			if not c then return end
-
-			for _,p in ipairs(c:GetDescendants()) do
-				if p:IsA("BasePart") then
-					p.CanCollide=false
-				end
-			end
-		end)
-	end
-end)
-
---// Drag
-local drag,start,pos=false,nil,nil
-
-Top.InputBegan:Connect(function(i)
-	if i.UserInputType==Enum.UserInputType.MouseButton1
-	or i.UserInputType==Enum.UserInputType.Touch then
-		drag=true
-		start=i.Position
-		pos=F.Position
-	end
-end)
-
-Top.InputEnded:Connect(function(i)
-	if i.UserInputType==Enum.UserInputType.MouseButton1
-	or i.UserInputType==Enum.UserInputType.Touch then
-		drag=false
-	end
-end)
-
-U.InputChanged:Connect(function(i)
-	if drag and(
-		i.UserInputType==Enum.UserInputType.MouseMovement
-		or i.UserInputType==Enum.UserInputType.Touch
-	)then
-		local d=i.Position-start
-
-		F.Position=UDim2.new(
-			pos.X.Scale,
-			pos.X.Offset+d.X,
-			pos.Y.Scale,
-			pos.Y.Offset+d.Y
-		)
-	end
-end)
-
 --// Fly
 local function StopFly()
 	fly=false
 
-	if fc then
-		fc:Disconnect()
-		fc=nil
-	end
-
-	if bv then
-		bv:Destroy()
-		bv=nil
-	end
-
-	if bg then
-		bg:Destroy()
-		bg=nil
-	end
+	if fc then fc:Disconnect() fc=nil end
+	if bv then bv:Destroy() bv=nil end
+	if bg then bg:Destroy() bg=nil end
 
 	local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
-
-	if h then
-		h.AutoRotate=true
-	end
+	if h then h.AutoRotate=true end
 
 	Stat(FS,false)
 end
@@ -516,27 +377,23 @@ local function StartFly()
 
 	local h=c:FindFirstChildOfClass("Humanoid")
 	local root=c:FindFirstChild("HumanoidRootPart")
-
 	if not h or not root then return end
 
 	fly=true
 	Stat(FS,true)
 	h.AutoRotate=false
 
-	bv=Instance.new("BodyVelocity")
+	bv=Instance.new("BodyVelocity",root)
 	bv.Name="LocustFlyVelocity"
 	bv.MaxForce=Vector3.new(math.huge,math.huge,math.huge)
 	bv.P=50000
 	bv.Velocity=Vector3.zero
-	bv.Parent=root
 
-	bg=Instance.new("BodyGyro")
+	bg=Instance.new("BodyGyro",root)
 	bg.Name="LocustFlyGyro"
 	bg.MaxTorque=Vector3.new(math.huge,math.huge,math.huge)
 	bg.P=90000
 	bg.D=1000
-	bg.CFrame=workspace.CurrentCamera.CFrame
-	bg.Parent=root
 
 	fc=R.RenderStepped:Connect(function()
 		if not fly or not root.Parent then
@@ -552,13 +409,8 @@ local function StartFly()
 		local flatLook=Vector3.new(look.X,0,look.Z)
 		local flatRight=Vector3.new(right.X,0,right.Z)
 
-		if flatLook.Magnitude>0 then
-			flatLook=flatLook.Unit
-		end
-
-		if flatRight.Magnitude>0 then
-			flatRight=flatRight.Unit
-		end
+		if flatLook.Magnitude>0 then flatLook=flatLook.Unit end
+		if flatRight.Magnitude>0 then flatRight=flatRight.Unit end
 
 		local forward=md:Dot(flatLook)
 		local side=md:Dot(flatRight)
@@ -583,11 +435,7 @@ local function StartFly()
 end
 
 FB.MouseButton1Click:Connect(function()
-	if fly then
-		StopFly()
-	else
-		StartFly()
-	end
+	if fly then StopFly() else StartFly() end
 end)
 
 --// Night Vision
@@ -601,9 +449,7 @@ NB.MouseButton1Click:Connect(function()
 		L.FogEnd=100000
 		L.GlobalShadows=false
 
-		if cc then
-			cc:Destroy()
-		end
+		if cc then cc:Destroy() end
 
 		cc=Instance.new("ColorCorrectionEffect",L)
 		cc.Name="NexusNightVision"
@@ -669,10 +515,8 @@ local function Check(m)
 		else
 			Remove(m)
 		end
-	else
-		if m~=LP.Character then
-			Add(m,C.red)
-		end
+	elseif m~=LP.Character then
+		Add(m,C.red)
 	end
 end
 
@@ -705,13 +549,53 @@ workspace.DescendantAdded:Connect(function(o)
 	end
 end)
 
-P.PlayerAdded:Connect(function(p)
-	p.CharacterAdded:Connect(function(c)
-		if esp then
-			task.wait(.2)
-			Add(c,C.blue)
-		end
-	end)
+--// Character
+LP.CharacterAdded:Connect(function(c)
+	task.wait(.5)
+
+	if noclip then
+		StartNoClip()
+	end
+
+	if antiAFK then
+		c:SetAttribute("NexusAFK",false)
+		c:SetAttribute("NexusAFKStarted",os.clock())
+	end
+end)
+
+--// Drag
+local drag,start,pos=false,nil,nil
+
+Top.InputBegan:Connect(function(i)
+	if i.UserInputType==Enum.UserInputType.MouseButton1
+	or i.UserInputType==Enum.UserInputType.Touch then
+		drag=true
+		start=i.Position
+		pos=F.Position
+	end
+end)
+
+Top.InputEnded:Connect(function(i)
+	if i.UserInputType==Enum.UserInputType.MouseButton1
+	or i.UserInputType==Enum.UserInputType.Touch then
+		drag=false
+	end
+end)
+
+U.InputChanged:Connect(function(i)
+	if drag and(
+		i.UserInputType==Enum.UserInputType.MouseMovement
+		or i.UserInputType==Enum.UserInputType.Touch
+	)then
+		local d=i.Position-start
+
+		F.Position=UDim2.new(
+			pos.X.Scale,
+			pos.X.Offset+d.X,
+			pos.Y.Scale,
+			pos.Y.Offset+d.Y
+		)
+	end
 end)
 
 --// Minimize
@@ -726,7 +610,7 @@ Min.MouseButton1Click:Connect(function()
 		Min.Text="+"
 	else
 		Con.Visible=true
-		tw(F,{Size=UDim2.fromOffset(285,315)})
+		tw(F,{Size=UDim2.fromOffset(285,360)})
 		Min.Text="—"
 	end
 end)
@@ -755,14 +639,10 @@ Close.MouseButton1Click:Connect(function()
 
 	L.Brightness,L.ClockTime,L.FogEnd,L.GlobalShadows=table.unpack(old)
 
-	tw(
-		F,
-		{
-			Size=UDim2.fromOffset(285,0),
-			BackgroundTransparency=1
-		},
-		TweenInfo.new(.25)
-	)
+	tw(F,{
+		Size=UDim2.fromOffset(285,0),
+		BackgroundTransparency=1
+	},TweenInfo.new(.25))
 
 	task.wait(.3)
 	G:Destroy()
@@ -772,11 +652,7 @@ end)
 F.Size=UDim2.fromOffset(285,0)
 F.BackgroundTransparency=1
 
-tw(
-	F,
-	{
-		Size=UDim2.fromOffset(285,315),
-		BackgroundTransparency=0
-	},
-	TweenInfo.new(.4,Enum.EasingStyle.Back,Enum.EasingDirection.Out)
-)
+tw(F,{
+	Size=UDim2.fromOffset(285,360),
+	BackgroundTransparency=0
+},TweenInfo.new(.4,Enum.EasingStyle.Back,Enum.EasingDirection.Out))
