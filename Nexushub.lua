@@ -681,4 +681,4 @@ F.BackgroundTransparency=1
 tw(F,{
 	Size=UDim2.fromOffset(FW,FH),
 	BackgroundTransparency=0
-},TweenInfo.new(.4,Enum.EasingStyle.Back))fo.new(.4,Enum.EasingStyle.Back))q
+},TweenInfo.new(.4,Enum.EasingStyle.Back))fo.new(.4,Enum.EasingStyle.Back))
