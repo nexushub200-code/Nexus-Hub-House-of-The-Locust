@@ -171,13 +171,16 @@ FPS.Font=Enum.Font.GothamBold
 FPS.TextXAlignment=Enum.TextXAlignment.Right
 
 local frames,last=0,os.clock()
+
 R.RenderStepped:Connect(function()
 	frames+=1
 	local now=os.clock()
 	if now-last>=.5 then
 		local n=math.floor(frames/(now-last)+.5)
 		FPS.Text=n.." FPS"
-		FPS.TextColor3=n>=50 and Color3.fromRGB(80,210,125)or n>=30 and Color3.fromRGB(225,185,70)or C.crimsonH
+		FPS.TextColor3=n>=50 and Color3.fromRGB(80,210,125)
+			or n>=30 and Color3.fromRGB(225,185,70)
+			or C.crimsonH
 		frames,last=0,now
 	end
 end)
@@ -205,18 +208,22 @@ local function WBtn(txt,x)
 	b.BorderSizePixel=0
 	b.AutoButtonColor=false
 	Instance.new("UICorner",b).CornerRadius=UDim.new(0,8)
+
 	local s=Instance.new("UIStroke",b)
 	s.Color=C.purple
 	s.Thickness=1.2
 	s.Transparency=.35
+
 	b.MouseEnter:Connect(function()
 		tw(b,{BackgroundColor3=C.hover,TextColor3=C.crimsonH})
 		s.Transparency=.1
 	end)
+
 	b.MouseLeave:Connect(function()
 		tw(b,{BackgroundColor3=C.panel,TextColor3=C.white})
 		s.Transparency=.35
 	end)
+
 	return b
 end
 
@@ -391,7 +398,9 @@ local Join=Action("Join Discord",BW+8,C.crimson,C.crimsonH)
 Safe.MouseButton1Click:Connect(function()
 	local c=LP.Character
 	local r=c and c:FindFirstChild("HumanoidRootPart")
-	if r then r.CFrame=CFrame.new(SAFE)end
+	if r then
+		r.CFrame=CFrame.new(SAFE)
+	end
 end)
 
 Join.MouseButton1Click:Connect(clip)
@@ -400,13 +409,16 @@ IB.MouseButton1Click:Connect(function()
 	IT()
 	tw(IB,{BackgroundColor3=C.hover})
 	task.delay(.15,function()
-		if IB.Parent then tw(IB,{BackgroundColor3=C.panel})end
+		if IB.Parent then
+			tw(IB,{BackgroundColor3=C.panel})
+		end
 	end)
 end)
 
 local function RestoreCollision()
 	local c=LP.Character
 	if not c then return end
+
 	for _,p in ipairs(c:GetDescendants())do
 		if p:IsA("BasePart")and p.Name~="HumanoidRootPart"then
 			p.CanCollide=true
@@ -417,42 +429,77 @@ end
 local function StartNoClip()
 	noclip=true
 	Stat(NCS,NCK,true)
-	if nc then nc:Disconnect()end
+
+	if nc then
+		nc:Disconnect()
+	end
+
 	nc=R.Stepped:Connect(function()
 		if not noclip then return end
+
 		local c=LP.Character
 		if not c then return end
+
 		for _,p in ipairs(c:GetDescendants())do
-			if p:IsA("BasePart")then p.CanCollide=false end
+			if p:IsA("BasePart")then
+				p.CanCollide=false
+			end
 		end
 	end)
 end
 
 local function StopNoClip()
 	noclip=false
-	if nc then nc:Disconnect()nc=nil end
+
+	if nc then
+		nc:Disconnect()
+		nc=nil
+	end
+
 	RestoreCollision()
 	Stat(NCS,NCK,false)
 end
 
 NCB.MouseButton1Click:Connect(function()
 	NCT()
-	if noclip then StopNoClip()else StartNoClip()end
+
+	if noclip then
+		StopNoClip()
+	else
+		StartNoClip()
+	end
 end)
 
 local function StopFly()
 	fly=false
-	if fc then fc:Disconnect()fc=nil end
-	if bv then bv:Destroy()bv=nil end
-	if bg then bg:Destroy()bg=nil end
+
+	if fc then
+		fc:Disconnect()
+		fc=nil
+	end
+
+	if bv then
+		bv:Destroy()
+		bv=nil
+	end
+
+	if bg then
+		bg:Destroy()
+		bg=nil
+	end
+
 	local h=LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
-	if h then h.AutoRotate=true end
+	if h then
+		h.AutoRotate=true
+	end
+
 	Stat(FSW,FK,false)
 end
 
 local function StartFly()
 	local c=LP.Character
 	if not c then return end
+
 	local h=c:FindFirstChildOfClass("Humanoid")
 	local root=c:FindFirstChild("HumanoidRootPart")
 	if not h or not root then return end
@@ -483,11 +530,17 @@ local function StartFly()
 		local md=h.MoveDirection
 		local look=cam.CFrame.LookVector
 		local right=cam.CFrame.RightVector
+
 		local fl=Vector3.new(look.X,0,look.Z)
 		local fr=Vector3.new(right.X,0,right.Z)
 
-		if fl.Magnitude>0 then fl=fl.Unit end
-		if fr.Magnitude>0 then fr=fr.Unit end
+		if fl.Magnitude>0 then
+			fl=fl.Unit
+		end
+
+		if fr.Magnitude>0 then
+			fr=fr.Unit
+		end
 
 		local f=md:Dot(fl)
 		local s=md:Dot(fr)
@@ -505,11 +558,17 @@ end
 
 FB.MouseButton1Click:Connect(function()
 	FT()
-	if fly then StopFly()else StartFly()end
+
+	if fly then
+		StopFly()
+	else
+		StartFly()
+	end
 end)
 
 NB.MouseButton1Click:Connect(function()
 	NT()
+
 	nv=not nv
 	Stat(NS,NK,nv)
 
@@ -519,14 +578,21 @@ NB.MouseButton1Click:Connect(function()
 		L.FogEnd=100000
 		L.GlobalShadows=false
 
-		if cc then cc:Destroy()end
+		if cc then
+			cc:Destroy()
+		end
+
 		cc=Instance.new("ColorCorrectionEffect",L)
 		cc.Name="NexusNightVision"
 		cc.Brightness=.25
 		cc.Contrast=.1
 		cc.Saturation=.15
 	else
-		if cc then cc:Destroy()cc=nil end
+		if cc then
+			cc:Destroy()
+			cc=nil
+		end
+
 		L.Brightness,L.ClockTime,L.FogEnd,L.GlobalShadows=table.unpack(old)
 	end
 end)
@@ -544,6 +610,7 @@ end
 
 local function Add(m,col)
 	Remove(m)
+
 	local h=Instance.new("Highlight",m)
 	h.Name="LocustESP"
 	h.Adornee=m
@@ -551,23 +618,32 @@ local function Add(m,col)
 	h.FillColor=col
 	h.OutlineColor=col
 	h.FillTransparency=.5
+
 	es[m]=h
 end
 
 local function Check(m)
-	if not esp or not m:IsA("Model")then return end
+	if not esp or not m:IsA("Model")then
+		return
+	end
 
 	if string.find(string.lower(m.Name),"cabinet",1,true)then
 		Add(m,C.green)
 		return
 	end
 
-	if not m:FindFirstChildOfClass("Humanoid")then return end
+	if not m:FindFirstChildOfClass("Humanoid")then
+		return
+	end
 
 	local p=PlayerOf(m)
 
 	if p then
-		if p~=LP then Add(m,C.blue)else Remove(m)end
+		if p~=LP then
+			Add(m,C.blue)
+		else
+			Remove(m)
+		end
 	elseif m~=LP.Character then
 		Add(m,C.red)
 	end
@@ -575,12 +651,15 @@ end
 
 local function Scan()
 	for _,m in ipairs(workspace:GetDescendants())do
-		if m:IsA("Model")then Check(m)end
+		if m:IsA("Model")then
+			Check(m)
+		end
 	end
 end
 
 EB.MouseButton1Click:Connect(function()
 	ET()
+
 	esp=not esp
 	Stat(ESW,EK,esp)
 
@@ -603,13 +682,17 @@ end)
 
 LP.CharacterAdded:Connect(function()
 	task.wait(.5)
-	if noclip then StartNoClip()end
+
+	if noclip then
+		StartNoClip()
+	end
 end)
 
 local drag,start,pos=false,nil,nil
 
 local function DS(i)
-	if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+	if i.UserInputType==Enum.UserInputType.MouseButton1
+	or i.UserInputType==Enum.UserInputType.Touch then
 		drag=true
 		start=i.Position
 		pos=F.Position
@@ -617,7 +700,8 @@ local function DS(i)
 end
 
 local function DE(i)
-	if i.UserInputType==Enum.UserInputType.MouseButton1 or i.UserInputType==Enum.UserInputType.Touch then
+	if i.UserInputType==Enum.UserInputType.MouseButton1
+	or i.UserInputType==Enum.UserInputType.Touch then
 		drag=false
 	end
 end
@@ -628,9 +712,17 @@ MinBar.InputBegan:Connect(DS)
 MinBar.InputEnded:Connect(DE)
 
 U.InputChanged:Connect(function(i)
-	if drag and(i.UserInputType==Enum.UserInputType.MouseMovement or i.UserInputType==Enum.UserInputType.Touch)then
+	if drag and(
+		i.UserInputType==Enum.UserInputType.MouseMovement
+		or i.UserInputType==Enum.UserInputType.Touch
+	)then
 		local d=i.Position-start
-		F.Position=UDim2.new(pos.X.Scale,pos.X.Offset+d.X,pos.Y.Scale,pos.Y.Offset+d.Y)
+		F.Position=UDim2.new(
+			pos.X.Scale,
+			pos.X.Offset+d.X,
+			pos.Y.Scale,
+			pos.Y.Offset+d.Y
+		)
 	end
 end)
 
@@ -656,14 +748,21 @@ Restore.MouseButton1Click:Connect(ShowFull)
 
 Close.MouseButton1Click:Connect(function()
 	StopFly()
-	if noclip then StopNoClip()end
+
+	if noclip then
+		StopNoClip()
+	end
 
 	for m,h in pairs(es)do
 		h:Destroy()
 		es[m]=nil
 	end
 
-	if cc then cc:Destroy()cc=nil end
+	if cc then
+		cc:Destroy()
+		cc=nil
+	end
+
 	L.Brightness,L.ClockTime,L.FogEnd,L.GlobalShadows=table.unpack(old)
 
 	tw(F,{
@@ -681,4 +780,4 @@ F.BackgroundTransparency=1
 tw(F,{
 	Size=UDim2.fromOffset(FW,FH),
 	BackgroundTransparency=0
-},TweenInfo.new(.4,Enum.EasingStyle.Back))fo.new(.4,Enum.EasingStyle.Back))
+},TweenInfo.new(.4,Enum.EasingStyle.Back))
